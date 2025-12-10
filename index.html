@@ -655,227 +655,52 @@
   </footer>
 
   <script>
-    // Fortnite shop endpoint (günlük mağaza + featured)
-    const API_URL = "https://fortnite-api-next.vercel.app/shop";
+   const API_URL = "https://fortnite-api-next.vercel.app/shop";
 
-    const featuredGrid = document.getElementById("featuredGrid");
-    const dailyGrid = document.getElementById("dailyGrid");
-    const featuredCount = document.getElementById("featuredCount");
-    const dailyCount = document.getElementById("dailyCount");
-    const lastUpdate = document.getElementById("lastUpdate");
-    const countdownEl = document.getElementById("countdown");
-    const refreshBtn = document.getElementById("refreshBtn");
-    const featuredError = document.getElementById("featuredError");
-    const dailyError = document.getElementById("dailyError");
-    const statusLine = document.getElementById("statusLine");
+// Featured ve Daily alanlarını seç
+const featuredContainer = document.getElementById("featured-items");
+const dailyContainer = document.getElementById("daily-items");
 
-    document.getElementById("year").textContent = new Date().getFullYear();
+async function loadShop() {
+    try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
 
-    function createSkeletonCards(container, count) {
-      container.innerHTML = "";
-      for (let i = 0; i < count; i++) {
-        const card = document.createElement("div");
-        card.className = "item-card skeleton";
-        card.innerHTML = `
-          <div class="item-image-wrap"></div>
-          <div class="item-info">
-            <div class="item-name">&nbsp;</div>
-            <div class="item-desc">&nbsp;</div>
-          </div>
-        `;
-        container.appendChild(card);
-      }
-    }
+        const featured = data.data.featured || [];
+        const daily = data.data.daily || [];
 
-    function rarityClass(rarityValue) {
-      if (!rarityValue) return "";
-      const r = rarityValue.toLowerCase();
-      if (r.includes("epic") || r.includes("destansı")) return "epic";
-      if (r.includes("legendary") || r.includes("efsane")) return "legendary";
-      return "";
-    }
+        // Temizlik
+        featuredContainer.innerHTML = "";
+        dailyContainer.innerHTML = "";
 
-    function renderSection(entries, container, countLabel) {
-      container.innerHTML = "";
-      let itemsRendered = 0;
-
-      entries.forEach(entry => {
-        const price = entry.finalPrice ?? entry.regularPrice ?? 0;
-
-        (entry.items || []).forEach(item => {
-          itemsRendered++;
-
-          const card = document.createElement("div");
-          card.className = "item-card";
-
-          const rarity = item.rarity?.displayValue || item.rarity?.value || "Bilinmiyor";
-          const rarityCls = rarityClass(rarity);
-
-          let type =
-            item.type?.displayValue ||
-            item.type?.value ||
-            (entry.bundle ? "Bundle" : "Kostüm");
-
-          if (entry.bundle && !String(type).toLowerCase().includes("bundle")) {
-            type = "Bundle";
-          }
-
-          const img =
-            item.images?.featured ||
-            item.images?.icon ||
-            item.images?.smallIcon ||
-            "";
-
-          card.innerHTML = `
-            <div class="item-tag">${type}</div>
-            <div class="item-rarity ${rarityCls}">${rarity}</div>
-            <div class="item-image-wrap">
-              ${
-                img
-                  ? `<img src="${img}" alt="${item.name}" class="item-image" loading="lazy" />`
-                  : `<div style="width:60%;height:60%;border-radius:999px;border:2px dashed rgba(148,163,184,0.6);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);">
-                       Görsel yok
-                     </div>`
-              }
-            </div>
-            <div class="item-info">
-              <div class="item-name">${item.name}</div>
-              <div class="item-desc">${item.description || "Açıklama bulunmuyor."}</div>
-              <div class="item-footer">
-                <div class="price">
-                  <div class="price-icon">V</div>
-                  <span>${price.toLocaleString("tr-TR")}</span>
-                </div>
-                <div class="meta-chip">
-                  <span>${entry.bundle?.name || "SHOP ITEM"}</span>
-                </div>
-              </div>
-            </div>
-          `;
-
-          container.appendChild(card);
-        });
-      });
-
-      countLabel.textContent = itemsRendered + " ürün";
-    }
-
-    async function loadShop() {
-      try {
-        featuredError.textContent = "";
-        dailyError.textContent = "";
-        lastUpdate.textContent = "Mağaza verisi yükleniyor...";
-        statusLine.children[1].textContent = "Gerçek mağaza yükleniyor...";
-
-        createSkeletonCards(featuredGrid, 4);
-        createSkeletonCards(dailyGrid, 4);
-
-        const response = await fetch(API_URL, {
-          headers: {
-            // Fortnite-API bazı istekler için versiyon header'ı istiyor
-            "X-Fortnite-API-Version": "v2"
-          }
+        // FEATURED ÜRÜNLERİ YERLEŞTİR
+        featured.forEach(item => {
+            featuredContainer.innerHTML += `
+                <div class="item-card">
+                    <img src="${item.images.icon}" />
+                    <p>${item.name}</p>
+                    <span>${item.price} V-Bucks</span>
+                </div>`;
         });
 
-        let json = null;
-        try {
-          json = await response.json();
-        } catch (e) {
-          // JSON parse edilemediyse
-        }
+        // DAILY ÜRÜNLERİ YERLEŞTİR
+        daily.forEach(item => {
+            dailyContainer.innerHTML += `
+                <div class="item-card">
+                    <img src="${item.images.icon}" />
+                    <p>${item.name}</p>
+                    <span>${item.price} V-Bucks</span>
+                </div>`;
+        });
 
-        if (!response.ok) {
-          const apiMsg =
-            (json && (json.error || json.message)) ||
-            `HTTP ${response.status}`;
-          throw new Error(apiMsg);
-        }
-
-        if (!json || !json.data) {
-          throw new Error("Beklenmeyen API cevabı (data boş)");
-        }
-
-        const data = json.data;
-
-        // Farklı cevap yapılarına karşı esnek ol
-        const featuredEntries =
-          data.featured?.entries ||
-          data.shop?.featured?.entries ||
-          data.br?.featured?.entries ||
-          [];
-
-        const dailyEntries =
-          data.daily?.entries ||
-          data.shop?.daily?.entries ||
-          data.br?.daily?.entries ||
-          [];
-
-        renderSection(featuredEntries, featuredGrid, featuredCount);
-        renderSection(dailyEntries, dailyGrid, dailyCount);
-
-        const updatedDate = data.date ? new Date(data.date) : new Date();
-        lastUpdate.textContent =
-          "Son güncelleme: " +
-          updatedDate.toLocaleString("tr-TR", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          });
-
-        statusLine.children[1].textContent = "Gerçek mağaza başarıyla yüklendi.";
-      } catch (err) {
-        console.error(err);
-        lastUpdate.textContent = "Veri alınırken hata oluştu.";
-        const msg = String(err.message || err);
-        featuredError.textContent = "Öne çıkan / paket ürünler yüklenemedi. (" + msg + ")";
-        dailyError.textContent = "Günlük ürünler yüklenemedi. (" + msg + ")";
-        statusLine.children[1].textContent = "API hatası: " + msg;
-      }
+    } catch (e) {
+        console.log("Hata:", e);
+        featuredContainer.innerHTML = "Hata oluştu";
+        dailyContainer.innerHTML = "Hata oluştu";
     }
+}
 
-    function getNextReset() {
-      const now = new Date();
-      const next = new Date();
-
-      next.setHours(3, 0, 0, 0); // Her gün 03:00 (TR)
-
-      if (now >= next) {
-        next.setDate(next.getDate() + 1);
-      }
-      return next;
-    }
-
-    function startCountdown() {
-      function update() {
-        const now = new Date();
-        const target = getNextReset();
-        const diff = target - now;
-
-        if (diff <= 0) {
-          countdownEl.textContent = "Yenileniyor...";
-          loadShop();
-          return;
-        }
-
-        const totalSeconds = Math.floor(diff / 1000);
-        const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
-        const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
-        const s = String(totalSeconds % 60).padStart(2, "0");
-
-        countdownEl.textContent = `${h}:${m}:${s}`;
-      }
-
-      update();
-      setInterval(update, 1000);
-    }
-
-    refreshBtn.addEventListener("click", () => {
-      loadShop();
-    });
-
-    // ilk açılış
-    startCountdown();
-    loadShop();
+loadShop();
   </script>
 </body>
 </html>
