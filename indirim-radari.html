@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8" />
+    <title>İndirim Radarı – Steam & Epic</title>
+
+    <!-- Modern, narin fontlar -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <style>
+        /* =========================================================
+           GENEL TEMA – AÇIK, NARİN, STEAM DUVARI ARKAPLANLI
+           ========================================================= */
+
+        :root {
+            --bg-page: #f5f6fb;
+            --bg-card: #ffffff;
+            --bg-chip: #f3f4fa;
+
+            --fg-main: #151826;
+            --fg-muted: #8a8fa0;
+            --fg-soft: #b5b9c8;
+
+            --accent: #2f6bff;
+            --accent-soft: #e2ebff;
+            --accent-strong: #16339b;
+
+            --border-soft: #e0e4f0;
+            --border-strong: #c2c8dd;
+
+            --radius-card: 20px;
+            --radius-pill: 999px;
+
+            --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.18);
+            --shadow-chip: 0 8px 18px rgba(15, 23, 42, 0.10);
+
+            --font-ui: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --font-alt: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            color: var(--fg-main);
+            background-color: var(--bg-page);
+            /* Arkadaki büyük görsel – senin attığın fotoğraf */
+            background-image: url("steam-wall.jpg");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            /* sayfa kayabilsin */
+            min-height: 100vh;
+        }
+
+        /* İçeriğin okunabilir olması için beyaz tül katman */
+        .page-overlay {
+            min-height: 100vh;
+            background: radial-gradient(circle at top left, #ffffffee 0, #ffffffdd 40%, #f7f7ffdd 100%);
+            backdrop-filter: blur(3px);
+            padding: 24px 0 40px 0;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 0 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* =========================================================
+           HEADER
+           ========================================================= */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        @media (max-width: 900px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .brand-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-soft);
+        }
+
+        .brand-mark {
+            width: 26px;
+            height: 26px;
+            border-radius: 9px;
+            background: radial-gradient(circle at 20% 20%, #2f6bff, #9f51ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: var(--font-alt);
+        }
+
+        .brand-name {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .brand-title {
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: var(--fg-muted);
+            letter-spacing: 0.20em;
+            text-transform: uppercase;
+        }
+
+        .brand-note {
+            font-size: 12px;
+            color: var(--fg-muted);
+            margin-left: 4px;
+        }
+
+        .status-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            border-radius: var(--radius-pill);
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-soft);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            box-shadow: var(--shadow-chip);
+        }
+
+        .chip-label {
+            color: var(--fg-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            font-size: 10px;
+        }
+
+        .chip-value {
+            font-weight: 500;
+        }
+
+        .chip-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: #f97373;
+            box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.25);
+        }
+
+        .chip-dot.online {
+            background: #34d399;
+            box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.25);
+        }
+
+        .chip-time {
+            min-width: 100px;
+            justify-content: space-between;
+        }
+
+        /* =========================================================
+           HERO / ÖZET
+           ========================================================= */
+
+        .hero {
+            display: grid;
+            grid-template-columns: 2.1fr 1.4fr;
+            gap: 18px;
+        }
+
+        @media (max-width: 960px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            border-radius: var(--radius-card);
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .card.hero-main {
+            padding: 16px 18px 14px 18px;
+        }
+
+        .card.hero-top {
+            padding: 16px 16px 14px 16px;
+        }
+
+        .hero-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .hero-title-block {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hero-title {
+            font-family: var(--font-alt);
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .hero-subtitle {
+            font-size: 12px;
+            color: var(--fg-muted);
+        }
+
+        .hero-pill {
+            border-radius: var(--radius-pill);
+            padding: 6px 12px;
+            background: var(--bg-chip);
+            border: 1px solid var(--border-soft);
+            font-size: 11px;
+            color: var(--fg-muted);
+        }
+
+        .hero-pill strong {
+            color: var(--accent-strong);
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 700px) {
+            .hero-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .stat {
+            border-radius: 14px;
+            background: #f8f9ff;
+            border: 1px solid #e3e7f7;
+            padding: 8px 10px 7px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--fg-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-strong);
+        }
+
+        .stat-sub {
+            font-size: 10px;
+            color: var(--fg-soft);
+        }
+
+        /* mini dağılım “grafiği” */
+        .hero-bottom-row {
+            display: grid;
+            grid-template-columns: 1.3fr 1.1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 700px) {
+            .hero-bottom-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mini-box {
+            border-radius: 14px;
+            background: #f7f7ff;
+            border: 1px solid #e3e8ff;
+            padding: 8px 10px;
+            font-size: 11px;
+        }
+
+        .mini-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--fg-muted);
+            margin-bottom: 4px;
+        }
+
+        .ascii-chart {
+            font-family: "DM Mono", "JetBrains Mono", monospace;
+            font-size: 10px;
+            white-space: pre;
+            line-height: 1.25;
+            color: var(--accent-strong);
+        }
+
+        .mini-footer {
+            margin-top: 4px;
+            font-size: 10px;
+            color: var(--fg-soft);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* TOP DEAL KARTI */
+        .top-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--fg-muted);
+            margin-bottom: 6px;
+        }
+
+        .top-main {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .top-name {
+            font-family: var(--font-alt);
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .top-meta {
+            font-size: 11px;
+            color: var(--fg-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+        }
+
+        .top-price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .top-price-labels {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 11px;
+            color: var(--fg-muted);
+        }
+
+        .top-price-values {
+            text-align: right;
+        }
+
+        .top-new {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-strong);
+        }
+
+        .top-old {
+            font-size: 12px;
+            color: var(--fg-soft);
+            text-decoration: line-through;
+        }
+
+        .top-discount {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .top-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            border-radius: var(--radius-pill);
+            padding: 7px 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2f6bff, #8c4dff);
+            color: #ffffff;
+            border-color: transparent;
+        }
+
+        .btn-ghost {
+            background: #f5f6ff;
+            border-color: #d5daf5;
+            color: var(--accent-strong);
+        }
+
+        .top-footer {
+            margin-top: 6px;
+            font-size: 10px;
+            color: var(--fg-soft);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* =========================================================
+           KONTROL PANELİ
+           ========================================================= */
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1.6fr 1.6fr 1.1fr;
+            gap: 14px;
+        }
+
+        @media (max-width: 980px) {
+            .controls {
+                grid-template-columns: 1.5fr 1.5fr;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .control-card {
+            border-radius: var(--radius-card);
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid var(--border-soft);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.10);
+            padding: 12px 14px 10px 14px;
+            font-size: 12px;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+
+        .control-title {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .control-subtitle {
+            font-size: 11px;
+            color: var(--fg-muted);
+        }
+
+        .pill-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            border-radius: var(--radius-pill);
+            padding: 6px 10px;
+            border: 1px solid var(--border-soft);
+            background: var(--bg-chip);
+            font-size: 11px;
+            color: var(--fg-muted);
+            cursor: pointer;
+        }
+
+        .pill.active {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            color: var(--accent-strong);
+            box-shadow: 0 0 0 1px rgba(47, 107, 255, 0.12);
+        }
+
+        .slider-block {
+            margin-bottom: 8px;
+        }
+
+        .slider-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--fg-muted);
+            margin-bottom: 4px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            height: 4px;
+            background: #dde3ff;
+            border-radius: 999px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #2f6bff;
+            margin-top: -5px;
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        input[type="range"]::-moz-range-track {
+            height: 4px;
+            background: #dde3ff;
+            border-radius: 999px;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #2f6bff;
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
+        }
+
+        .search-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-soft);
+            background: #f6f7ff;
+            padding: 6px 10px;
+            margin-bottom: 6px;
+        }
+
+        .search-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 999px;
+            border: 2px solid var(--fg-soft);
+            position: relative;
+        }
+
+        .search-icon::after {
+            content: "";
+            position: absolute;
+            width: 7px;
+            height: 2px;
+            background: var(--fg-soft);
+            right: -4px;
+            bottom: -2px;
+            transform: rotate(35deg);
+            border-radius: 999px;
+        }
+
+        .search-input {
+            border: none;
+            outline: none;
+            background: transparent;
+            flex: 1;
+            font-size: 12px;
+        }
+
+        .search-input::placeholder {
+            color: var(--fg-soft);
+        }
+
+        .sort-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .sort-pill {
+            border-radius: var(--radius-pill);
+            border: 1px dashed var(--border-soft);
+            padding: 5px 9px;
+            font-size: 11px;
+            color: var(--fg-muted);
+            cursor: pointer;
+        }
+
+        .sort-pill.active {
+            border-style: solid;
+            border-color: var(--accent);
+            color: var(--accent-strong);
+            background: #edf0ff;
+        }
+
+        .small-note {
+            font-size: 11px;
+            color: var(--fg-soft);
+        }
+
+        .btn-outline-full {
+            width: 100%;
+            margin-top: 6px;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-soft);
+            background: #f7f8ff;
+            font-size: 11px;
+            padding: 7px 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            cursor: pointer;
+            color: var(--fg-muted);
+        }
+
+        /* =========================================================
+           ANA İÇERİK – LİSTELER
+           ========================================================= */
+
+        .content {
+            display: grid;
+            grid-template-columns: 1.5fr 1.5fr 1.1fr;
+            gap: 16px;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 1040px) {
+            .content {
+                grid-template-columns: 1.4fr 1.4fr;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            border-radius: var(--radius-card);
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-soft);
+            padding: 12px 12px 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 520px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .panel-meta {
+            display: flex;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--fg-muted);
+        }
+
+        .panel-badge {
+            border-radius: var(--radius-pill);
+            padding: 4px 8px;
+            background: var(--bg-chip);
+        }
+
+        .list {
+            margin-top: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .game-card {
+            border-radius: 12px;
+            border: 1px solid var(--border-soft);
+            background: #ffffff;
+            padding: 7px 8px;
+            display: grid;
+            grid-template-columns: 1.9fr 0.7fr 0.9fr 0.9fr;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
+            transition: box-shadow 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+        }
+
+        @media (max-width: 640px) {
+            .game-card {
+                grid-template-columns: 1.9fr 0.7fr 1fr;
+                grid-template-rows: auto auto;
+                grid-template-areas:
+                    "title discount score"
+                    "title price   score";
+            }
+        }
+
+        .game-card:hover {
+            transform: translateY(-1px);
+            border-color: var(--accent-soft);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+        }
+
+        .game-card.top {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(47, 107, 255, 0.35), 0 12px 26px rgba(15, 23, 42, 0.24);
+        }
+
+        .game-title {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .game-name {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .game-platform {
+            font-size: 11px;
+            color: var(--fg-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+        }
+
+        .game-discount {
+            text-align: right;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .game-price {
+            text-align: right;
+        }
+
+        .game-price-old {
+            font-size: 11px;
+            color: var(--fg-soft);
+            text-decoration: line-through;
+        }
+
+        .game-price-new {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent-strong);
+        }
+
+        .game-score {
+            text-align: right;
+            font-size: 10px;
+        }
+
+        .game-score-label {
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--fg-soft);
+        }
+
+        .game-score-value {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* lab panel içi */
+        .lab-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .lab-box {
+            border-radius: 14px;
+            background: #f7f7ff;
+            border: 1px solid #e0e5ff;
+            padding: 8px 9px;
+        }
+
+        .lab-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--fg-muted);
+            margin-bottom: 4px;
+        }
+
+        .lab-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+
+        .lab-label {
+            color: var(--fg-muted);
+        }
+
+        .lab-value {
+            font-weight: 500;
+        }
+
+        .history {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 2px;
+        }
+
+        .history-item {
+            border-bottom: 1px dashed var(--border-soft);
+            padding: 4px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .history-main {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--fg-soft);
+        }
+
+        .lab-note {
+            font-size: 11px;
+            color: var(--fg-soft);
+        }
+
+        /* =========================================================
+           TOAST BİLDİRİM
+           ========================================================= */
+
+        .toast-container {
+            position: fixed;
+            right: 24px;
+            bottom: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 999;
+        }
+
+        .toast {
+            border-radius: 14px;
+            background: #ffffff;
+            border: 1px solid #d1d9ff;
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+            padding: 8px 10px;
+            font-size: 11px;
+            max-width: 320px;
+        }
+
+        .toast-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--accent-strong);
+            margin-bottom: 4px;
+        }
+
+        .toast-body {
+            color: var(--fg-muted);
+        }
+
+        /* =========================================================
+           FOOTER
+           ========================================================= */
+
+        .footer {
+            margin-top: 10px;
+            font-size: 11px;
+            color: var(--fg-soft);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 720px) {
+            .footer {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+
+        /* Scrollbar – light */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e6e9ff;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c0c6ef;
+            border-radius: 999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9aa3e5;
+        }
+    </style>
+</head>
+<body>
+<div class="page-overlay">
+    <div class="app">
+        <!-- =====================================================
+             HEADER
+             ===================================================== -->
+        <header>
+            <div class="brand">
+                <div class="brand-row">
+                    <div class="brand-mark">IR</div>
+                    <div class="brand-name">
+                        <div class="brand-title">İndirim Radarı</div>
+                        <div class="brand-subtitle">steam · epic · pc</div>
+                    </div>
+                </div>
+                <div class="brand-note">
+                    En şık indirim panon: yüzlerce oyunun indirimini tek ekranda gör, filtrele, en yükseği yakala.
+                </div>
+            </div>
+            <div class="status-group">
+                <div class="chip">
+                    <div class="chip-dot" id="status-dot"></div>
+                    <div>
+                        <div class="chip-label">Durum</div>
+                        <div class="chip-value" id="status-text">Beklemede</div>
+                    </div>
+                </div>
+                <div class="chip chip-time">
+                    <div class="chip-label">Son Tarama</div>
+                    <div class="chip-value" id="last-update">-</div>
+                </div>
+                <div class="chip">
+                    <div class="chip-label">Tarama Sayısı</div>
+                    <div class="chip-value" id="scan-count">0</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- =====================================================
+             HERO – ÖZET + TOP DEAL
+             ===================================================== -->
+        <section class="hero">
+            <div class="card hero-main">
+                <div class="hero-header-row">
+                    <div class="hero-title-block">
+                        <div class="hero-title">Bugünün İndirim Özeti</div>
+                        <div class="hero-subtitle">
+                            Steam ve Epic mağazalarındaki popüler indirimleri tek bir hafif panelde topladım.
+                        </div>
+                    </div>
+                    <div class="hero-pill">
+                        Görüntülenen oyun sayısı: <strong id="hero-total-games">0</strong>
+                    </div>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-label">Toplam oyun</div>
+                        <div class="stat-value" id="summary-total-games">0</div>
+                        <div class="stat-sub">Tüm listede filtrelenmiş kayıt</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">En yüksek indirim</div>
+                        <div class="stat-value" id="summary-best-discount">-%</div>
+                        <div class="stat-sub">Steam + Epic birleşik</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Ortalama indirim</div>
+                        <div class="stat-value" id="summary-average-discount">-%</div>
+                        <div class="stat-sub">Şu an görünen tüm oyunlar</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Auto refresh</div>
+                        <div class="stat-value" id="summary-refresh-every">300s</div>
+                        <div class="stat-sub">Mod: <span id="summary-refresh-mode">Otomatik</span></div>
+                    </div>
+                </div>
+
+                <div class="hero-bottom-row">
+                    <div class="mini-box">
+                        <div class="mini-title">İndirim Dağılımı</div>
+                        <pre class="ascii-chart" id="ascii-chart">
+[90-100]% | 
+[75- 89]% | 
+[50- 74]% | 
+[25- 49]% | 
+[ 0- 24]% | 
+                        </pre>
+                        <div class="mini-footer">
+                            <span>Satır başına oyun yoğunluğu</span>
+                            <span id="ascii-chart-count">0 oyun</span>
+                        </div>
+                    </div>
+                    <div class="mini-box">
+                        <div class="mini-title">Platform Dağılımı</div>
+                        <div class="lab-row">
+                            <span class="lab-label">Steam oyun sayısı</span>
+                            <span class="lab-value" id="stat-steam-count">0</span>
+                        </div>
+                        <div class="lab-row">
+                            <span class="lab-label">Epic oyun sayısı</span>
+                            <span class="lab-value" id="stat-epic-count">0</span>
+                        </div>
+                        <div class="lab-row">
+                            <span class="lab-label">Radar skoru</span>
+                            <span class="lab-value" id="stat-radar-score">-</span>
+                        </div>
+                        <div class="lab-note">
+                            “Radar skoru” = Ortalama indirim + zirve indirim karışımı, sadece keyfi bir metriğim.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card hero-top">
+                <div class="top-title">Anlık En Büyük İndirim</div>
+                <div class="top-main" id="top-deal-highlight">
+                    <div class="lab-note">
+                        İlk tarama yapılınca buraya listendeki en çılgın indirim gelecek.
+                    </div>
+                </div>
+                <div class="top-buttons">
+                    <button class="btn btn-primary" id="btn-refresh-now">Şimdi Tara</button>
+                    <button class="btn btn-ghost" id="btn-reset-filters">Filtreleri Sıfırla</button>
+                </div>
+                <div class="top-footer">
+                    <span id="hero-footer-status">Durum: beklemede</span>
+                    <span>Kaydırarak tüm listeyi gezebilirsin.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             KONTROLLER
+             ===================================================== -->
+        <section class="controls">
+            <div class="control-card">
+                <div class="control-header">
+                    <div class="control-title">Platform Seçimi</div>
+                    <div class="control-subtitle">Hangi mağazaları görünecek?</div>
+                </div>
+                <div class="pill-row">
+                    <button class="pill active" id="toggle-steam">Steam</button>
+                    <button class="pill active" id="toggle-epic">Epic Games</button>
+                </div>
+                <div class="small-note">
+                    İstersen sadece Steam veya sadece Epic indirimlerini gör. İkisini de açık bırakmak en zevklisi.
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="control-header">
+                    <div class="control-title">Filtre & Zamanlama</div>
+                    <div class="control-subtitle">Minimum indirim, otomatik tarama</div>
+                </div>
+                <div class="slider-block">
+                    <div class="slider-label-row">
+                        <span>Minimum indirim</span>
+                        <span id="min-discount-label">0%</span>
+                    </div>
+                    <input id="min-discount-slider" type="range" min="0" max="100" value="0" />
+                </div>
+                <div class="slider-block">
+                    <div class="slider-label-row">
+                        <span>Otomatik tarama aralığı</span>
+                        <span id="refresh-interval-label">300 sn</span>
+                    </div>
+                    <input id="refresh-interval-slider" type="range" min="30" max="600" step="30" value="300" />
+                </div>
+                <div class="small-note">
+                    30 saniye neredeyse canlı yayın gibi; dilersen 5-10 dakikaya çıkarıp daha sakin kullanabilirsin.
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="control-header">
+                    <div class="control-title">Arama & Sıralama</div>
+                    <div class="control-subtitle">Oyun bul, öncelik ver</div>
+                </div>
+                <div class="search-wrapper">
+                    <div class="search-icon"></div>
+                    <input id="search-input" class="search-input" placeholder="Oyun ismine göre filtrele (örn: witcher, souls, sim...)" />
+                </div>
+                <div class="sort-row">
+                    <button class="sort-pill active" data-sort="discount">İndirime göre</button>
+                    <button class="sort-pill" data-sort="price">Fiyata göre</button>
+                    <button class="sort-pill" data-sort="name">İsme göre</button>
+                </div>
+                <div class="small-note">
+                    Hepsi client-side; hiçbir yere veri gönderilmiyor, tamamen senin tarayıcında çalışıyor.
+                </div>
+            </div>
+        </section>
+
+        <!-- =====================================================
+             ANA İÇERİK – LİSTELER
+             ===================================================== -->
+        <section class="content">
+            <!-- STEAM -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">Steam İndirimleri</div>
+                    <div class="panel-meta">
+                        <div class="panel-badge" id="steam-count">0 oyun</div>
+                        <div class="panel-badge" id="steam-meta-extra">en yüksek: -</div>
+                    </div>
+                </div>
+                <div class="list" id="steam-deal-list">
+                    <!-- JS dolduracak -->
+                </div>
+            </section>
+
+            <!-- EPIC -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">Epic Games İndirimleri</div>
+                    <div class="panel-meta">
+                        <div class="panel-badge" id="epic-count">0 oyun</div>
+                        <div class="panel-badge" id="epic-meta-extra">en yüksek: -</div>
+                    </div>
+                </div>
+                <div class="list" id="epic-deal-list">
+                    <!-- JS dolduracak -->
+                </div>
+            </section>
+
+            <!-- LAB / ÖZET & TARİHÇE -->
+            <aside class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">Radar Lab & Tarihçe</div>
+                    <div class="panel-meta">
+                        <div class="panel-badge" id="lab-meta-env">front-only</div>
+                    </div>
+                </div>
+                <div class="lab-section">
+                    <div class="lab-box">
+                        <div class="lab-title">Anlık Özet</div>
+                        <div class="lab-row">
+                            <span class="lab-label">Toplam kayıt</span>
+                            <span class="lab-value" id="lab-total-games">0</span>
+                        </div>
+                        <div class="lab-row">
+                            <span class="lab-label">Aktif platformlar</span>
+                            <span class="lab-value" id="lab-active-platforms">Steam + Epic</span>
+                        </div>
+                        <div class="lab-row">
+                            <span class="lab-label">Avg. indirim</span>
+                            <span class="lab-value" id="lab-avg-discount">-%</span>
+                        </div>
+                        <div class="lab-row">
+                            <span class="lab-label">Son hata</span>
+                            <span class="lab-value" id="lab-last-error">yok</span>
+                        </div>
+                    </div>
+
+                    <div class="lab-box">
+                        <div class="lab-title">Top İndirim Tarihçesi</div>
+                        <div class="history" id="history-list">
+                            <!-- JS -->
+                        </div>
+                    </div>
+
+                    <div class="lab-box">
+                        <div class="lab-title">Notlar</div>
+                        <div class="lab-note">
+                            • Steam/Epic API'leri tarayıcıdan çağrılmaya çalışılır; CORS engeli olursa otomatik olarak
+                            geniş bir <strong>mock katalogdan 100+ oyun</strong> gösterilir.<br/>
+                            • Bu sayfa sadece görsel ve arayüz için; gerçek fiyatlar fikir vermesi içindir.
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </section>
+
+        <!-- Toast -->
+        <div class="toast-container" id="toast-container"></div>
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <span>İndirim Radarı – hafif, tek dosyalık, arkaplanda Steam kolajıyla çalışan şık bir panel.</span>
+            <span>Scroll çalışıyor: aşağı yukarı kaydır, tüm listeyi rahatça gezeceksin.</span>
+        </footer>
+    </div>
+</div>
+
+<script>
+    // =========================================================
+    // Yardımcı fonksiyonlar
+    // =========================================================
+    function log(level, ...args) {
+        const prefix = "[INDIRIM-RADARI-LIGHT]";
+        const time = new Date().toISOString().split("T")[1].split(".")[0];
+        (console[level] || console.log)(`${prefix} [${time}]`, ...args);
+    }
+
+    function formatTime(date) {
+        const d = date instanceof Date ? date : new Date(date);
+        const h = String(d.getHours()).padStart(2, "0");
+        const m = String(d.getMinutes()).padStart(2, "0");
+        const s = String(d.getSeconds()).padStart(2, "0");
+        return `${h}:${m}:${s}`;
+    }
+
+    function formatPriceTRY(value) {
+        if (value == null || isNaN(value)) return "-";
+        return value.toLocaleString("tr-TR", {
+            style: "currency",
+            currency: "TRY",
+            maximumFractionDigits: 2
+        });
+    }
+
+    function formatDiscount(percent) {
+        if (percent == null || isNaN(percent)) return "-%";
+        return `-${percent}%`;
+    }
+
+    function randomId() {
+        return Math.random().toString(36).substring(2, 10);
+    }
+
+    // =========================================================
+    // Global state
+    // =========================================================
+    const state = {
+        settings: {
+            platformSteam: true,
+            platformEpic: true,
+            minDiscount: 0,
+            refreshIntervalSec: 300,
+            sortBy: "discount", // discount | price | name
+            searchQuery: ""
+        },
+        data: {
+            steamDealsRaw: [],
+            epicDealsRaw: []
+        },
+        meta: {
+            lastUpdate: null,
+            scanCount: 0,
+            lastTopDealId: null,
+            history: [],
+            lastError: null
+        },
+        timers: {
+            refreshIntervalId: null
+        }
+    };
+
+    // =========================================================
+    // ELEMENTLER
+    // =========================================================
+    const elStatusDot = document.getElementById("status-dot");
+    const elStatusText = document.getElementById("status-text");
+    const elLastUpdate = document.getElementById("last-update");
+    const elScanCount = document.getElementById("scan-count");
+    const elHeroFooterStatus = document.getElementById("hero-footer-status");
+
+    const elSummaryTotalGames = document.getElementById("summary-total-games");
+    const elSummaryBestDiscount = document.getElementById("summary-best-discount");
+    const elSummaryAverageDiscount = document.getElementById("summary-average-discount");
+    const elSummaryRefreshEvery = document.getElementById("summary-refresh-every");
+    const elSummaryRefreshMode = document.getElementById("summary-refresh-mode");
+    const elHeroTotalGames = document.getElementById("hero-total-games");
+
+    const elAsciiChart = document.getElementById("ascii-chart");
+    const elAsciiChartCount = document.getElementById("ascii-chart-count");
+    const elStatSteamCount = document.getElementById("stat-steam-count");
+    const elStatEpicCount = document.getElementById("stat-epic-count");
+    const elStatRadarScore = document.getElementById("stat-radar-score");
+
+    const elTopDealHighlight = document.getElementById("top-deal-highlight");
+
+    const elToggleSteam = document.getElementById("toggle-steam");
+    const elToggleEpic = document.getElementById("toggle-epic");
+    const elMinDiscountSlider = document.getElementById("min-discount-slider");
+    const elMinDiscountLabel = document.getElementById("min-discount-label");
+    const elRefreshIntervalSlider = document.getElementById("refresh-interval-slider");
+    const elRefreshIntervalLabel = document.getElementById("refresh-interval-label");
+    const elSearchInput = document.getElementById("search-input");
+    const elSortPills = document.querySelectorAll(".sort-pill");
+    const elBtnRefreshNow = document.getElementById("btn-refresh-now");
+    const elBtnResetFilters = document.getElementById("btn-reset-filters");
+
+    const elSteamList = document.getElementById("steam-deal-list");
+    const elEpicList = document.getElementById("epic-deal-list");
+    const elSteamCount = document.getElementById("steam-count");
+    const elSteamMetaExtra = document.getElementById("steam-meta-extra");
+    const elEpicCount = document.getElementById("epic-count");
+    const elEpicMetaExtra = document.getElementById("epic-meta-extra");
+
+    const elLabTotalGames = document.getElementById("lab-total-games");
+    const elLabActivePlatforms = document.getElementById("lab-active-platforms");
+    const elLabAvgDiscount = document.getElementById("lab-avg-discount");
+    const elLabLastError = document.getElementById("lab-last-error");
+    const elHistoryList = document.getElementById("history-list");
+
+    const elToastContainer = document.getElementById("toast-container");
+
+    // =========================================================
+    // Toast
+    // =========================================================
+    function showToast(title, message, timeoutMs = 6000) {
+        const toast = document.createElement("div");
+        toast.className = "toast";
+
+        const titleEl = document.createElement("div");
+        titleEl.className = "toast-title";
+        titleEl.textContent = title;
+
+        const bodyEl = document.createElement("div");
+        bodyEl.className = "toast-body";
+        bodyEl.textContent = message;
+
+        toast.appendChild(titleEl);
+        toast.appendChild(bodyEl);
+        elToastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = "0";
+            toast.style.transform = "translateY(4px)";
+            setTimeout(() => toast.remove(), 320);
+        }, timeoutMs);
+    }
+
+    // =========================================================
+    // Mock katalog – 100+ oyun
+    // =========================================================
+    const BASE_STEAM_TITLES = [
+        "Galactic Strategy", "Dungeon Shadows", "Cyber Drift", "Crystal Odyssey",
+        "Neon Souls", "Lost Colony", "Pixel Rogue", "Iron Legion",
+        "Shadowrun City", "Mystic Valley", "Skyline Racers", "Frozen Frontier",
+        "Tactical Ops", "Arcane Academy", "Midnight Survivors"
+    ];
+
+    const BASE_EPIC_TITLES = [
+        "Solar Storm", "Quantum Dash", "Hero's Path", "Night Runner",
+        "Silent Depths", "Omega Arena", "Cloud Riders", "Echo Hunters",
+        "Desert Mirage", "Steel Horizon", "Spirit Trials", "Drift Legends",
+        "Metro Lines", "Phantom Tactics", "Neon Trails"
+    ];
+
+    function generateMockGames() {
+        const steam = [];
+        const epic = [];
+        let idCounter = 1;
+
+        // Her base listesini birkaç tur çevirerek 100+ oyun üretelim
+        for (let round = 0; round < 4; round++) {
+            BASE_STEAM_TITLES.forEach((title, idx) => {
+                const discount = 30 + ((round * 7 + idx * 3) % 65); // 30–94 arası
+                const oldPrice = 59 + ((round * 13 + idx * 7) % 400); // 59–459 TL
+                const newPrice = +(oldPrice * (1 - discount / 100)).toFixed(2);
+                steam.push({
+                    id: "mock-steam-" + (idCounter++),
+                    name: title + (round > 0 ? " " + (round + 1) : ""),
+                    platform: "STEAM",
+                    discountPercent: discount,
+                    oldPrice,
+                    newPrice,
+                    score: 7 + ((idx + round) % 3),
+                    url: "https://store.steampowered.com/"
+                });
+            });
+        }
+
+        for (let round = 0; round < 4; round++) {
+            BASE_EPIC_TITLES.forEach((title, idx) => {
+                const discount = 25 + ((round * 11 + idx * 5) % 70); // 25–94
+                const oldPrice = 49 + ((round * 17 + idx * 9) % 350);
+                const newPrice = +(oldPrice * (1 - discount / 100)).toFixed(2);
+                epic.push({
+                    id: "mock-epic-" + (idCounter++),
+                    name: title + (round > 0 ? " " + (round + 1) : ""),
+                    platform: "EPIC",
+                    discountPercent: discount,
+                    oldPrice,
+                    newPrice,
+                    score: 7 + ((idx + round) % 3),
+                    url: "https://store.epicgames.com/"
+                });
+            });
+        }
+
+        log("info", "Mock katalog oluşturuldu:", steam.length, "Steam,", epic.length, "Epic");
+        return { steam, epic };
+    }
+
+    const MOCK_DATA = generateMockGames();
+
+    // =========================================================
+    // Steam / Epic API – çalışırsa bonus, olmazsa sadece mock
+    // =========================================================
+    async function fetchSteamDeals() {
+        const API_URL = "https://store.steampowered.com/api/featuredcategories/?l=turkish";
+        try {
+            const res = await fetch(API_URL, { cache: "no-store" });
+            if (!res.ok) throw new Error("Steam HTTP " + res.status);
+            const json = await res.json();
+            const specials = json.specials || {};
+            const items = specials.items || [];
+            const deals = items.map((item, index) => {
+                const discountPercent = item.discount_percent || 0;
+                const oldPrice = (item.original_price || 0) / 100;
+                const newPrice = (item.final_price || 0) / 100;
+                return {
+                    id: "steam-" + (item.id || item.name || index),
+                    name: item.name || "Steam Oyunu",
+                    platform: "STEAM",
+                    discountPercent,
+                    oldPrice,
+                    newPrice,
+                    score: null,
+                    url: item.id ? "https://store.steampowered.com/app/" + item.id : "https://store.steampowered.com/"
+                };
+            });
+            deals.sort((a, b) => b.discountPercent - a.discountPercent);
+            log("info", "Steam API'den", deals.length, "kayıt alındı.");
+            return deals;
+        } catch (err) {
+            log("warn", "Steam API başarısız, mock kullanılıyor:", err);
+            state.meta.lastError = "Steam API yerine mock veriler gösteriliyor";
+            return MOCK_DATA.steam;
+        }
+    }
+
+    async function fetchEpicDeals() {
+        const API_URL = "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions?locale=tr-TR&country=TR&allowCountries=TR";
+        try {
+            const res = await fetch(API_URL, { cache: "no-store" });
+            if (!res.ok) throw new Error("Epic HTTP " + res.status);
+            const json = await res.json();
+            const data = json.data || json;
+            const catalog = data.Catalog || {};
+            const searchStore = catalog.searchStore || {};
+            const elements = searchStore.elements || [];
+            const deals = [];
+
+            elements.forEach((el, index) => {
+                const priceInfo = el.price && el.price.totalPrice;
+                if (!priceInfo) return;
+                const original = priceInfo.originalPrice || 0;
+                const discount = priceInfo.discount || 0;
+                const final = priceInfo.discountPrice || 0;
+                if (original <= 0 || discount <= 0) return;
+                const discountPercent = Math.round((discount / original) * 100);
+                deals.push({
+                    id: "epic-" + (el.id || el.title || index),
+                    name: el.title || "Epic Oyunu",
+                    platform: "EPIC",
+                    discountPercent,
+                    oldPrice: original / 100,
+                    newPrice: final / 100,
+                    score: null,
+                    url: `https://store.epicgames.com/tr/p/${(el.productSlug || "").replace("/home", "")}`
+                });
+            });
+
+            deals.sort((a, b) => b.discountPercent - a.discountPercent);
+            if (!deals.length) {
+                log("info", "Epic API boş, mock kullanılacak.");
+                state.meta.lastError = "Epic API yerine mock veriler gösteriliyor";
+                return MOCK_DATA.epic;
+            }
+            log("info", "Epic API'den", deals.length, "kayıt alındı.");
+            return deals;
+        } catch (err) {
+            log("warn", "Epic API başarısız, mock kullanılıyor:", err);
+            state.meta.lastError = "Epic API yerine mock veriler gösteriliyor";
+            return MOCK_DATA.epic;
+        }
+    }
+
+    // =========================================================
+    // Filtreleme & sıralama
+    // =========================================================
+    function filterSortSearchDeals(deals) {
+        const { minDiscount, sortBy, searchQuery } = state.settings;
+        const q = searchQuery.trim().toLowerCase();
+
+        let result = deals.filter(d => (d.discountPercent || 0) >= minDiscount);
+
+        if (q) {
+            result = result.filter(d => (d.name || "").toLowerCase().includes(q));
+        }
+
+        if (sortBy === "discount") {
+            result.sort((a, b) => (b.discountPercent || 0) - (a.discountPercent || 0));
+        } else if (sortBy === "price") {
+            result.sort((a, b) => (a.newPrice || Infinity) - (b.newPrice || Infinity));
+        } else if (sortBy === "name") {
+            result.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        }
+
+        return result;
+    }
+
+    // =========================================================
+    // Game card render
+    // =========================================================
+    function renderGameCard(deal, isTop) {
+        const card = document.createElement("div");
+        card.className = "game-card";
+        if (isTop) card.classList.add("top");
+
+        const titleCol = document.createElement("div");
+        titleCol.className = "game-title";
+        const nameEl = document.createElement("div");
+        nameEl.className = "game-name";
+        nameEl.textContent = deal.name;
+        const platformEl = document.createElement("div");
+        platformEl.className = "game-platform";
+        platformEl.textContent = deal.platform === "STEAM" ? "Steam / PC" : "Epic Games / PC";
+        titleCol.appendChild(nameEl);
+        titleCol.appendChild(platformEl);
+
+        const discountCol = document.createElement("div");
+        discountCol.className = "game-discount";
+        discountCol.textContent = formatDiscount(deal.discountPercent);
+
+        const priceCol = document.createElement("div");
+        priceCol.className = "game-price";
+        const oldPriceEl = document.createElement("div");
+        oldPriceEl.className = "game-price-old";
+        oldPriceEl.textContent = formatPriceTRY(deal.oldPrice);
+        const newPriceEl = document.createElement("div");
+        newPriceEl.className = "game-price-new";
+        newPriceEl.textContent = formatPriceTRY(deal.newPrice);
+        priceCol.appendChild(oldPriceEl);
+        priceCol.appendChild(newPriceEl);
+
+        const scoreCol = document.createElement("div");
+        scoreCol.className = "game-score";
+        const scoreLabel = document.createElement("div");
+        scoreLabel.className = "game-score-label";
+        scoreLabel.textContent = "RADAR";
+        const scoreValue = document.createElement("div");
+        scoreValue.className = "game-score-value";
+        const baseScore = deal.discountPercent || 0;
+        const metaScore = deal.score != null ? deal.score : 0;
+        scoreValue.textContent = Math.round(baseScore + metaScore * 2);
+        scoreCol.appendChild(scoreLabel);
+        scoreCol.appendChild(scoreValue);
+
+        card.appendChild(titleCol);
+        card.appendChild(discountCol);
+        card.appendChild(priceCol);
+        card.appendChild(scoreCol);
+
+        if (deal.url) {
+            card.addEventListener("click", () => {
+                window.open(deal.url, "_blank");
+            });
+        }
+
+        return card;
+    }
+
+    function renderList(container, deals, topId) {
+        container.innerHTML = "";
+        deals.forEach(deal => {
+            const isTop = deal.id === topId;
+            const card = renderGameCard(deal, isTop);
+            container.appendChild(card);
+        });
+    }
+
+    // =========================================================
+    // ASCII grafik & istatistikler
+    // =========================================================
+    function updateAsciiAndStats() {
+        const steam = state.data.steamDealsRaw;
+        const epic = state.data.epicDealsRaw;
+        const all = [...steam, ...epic];
+
+        const buckets = {
+            "90-100": 0,
+            "75-89": 0,
+            "50-74": 0,
+            "25-49": 0,
+            "0-24": 0
+        };
+
+        let totalDiscount = 0;
+
+        all.forEach(d => {
+            const p = d.discountPercent || 0;
+            totalDiscount += p;
+            if (p >= 90) buckets["90-100"]++;
+            else if (p >= 75) buckets["75-89"]++;
+            else if (p >= 50) buckets["50-74"]++;
+            else if (p >= 25) buckets["25-49"]++;
+            else buckets["0-24"]++;
+        });
+
+        const maxBucket = Math.max(1, ...Object.values(buckets));
+        const maxChars = 22;
+        const makeBar = count => "#".repeat(Math.round((count / maxBucket) * maxChars));
+
+        const lines = [
+            `[90-100]% | ${makeBar(buckets["90-100"])}`,
+            `[75- 89]% | ${makeBar(buckets["75-89"])}`,
+            `[50- 74]% | ${makeBar(buckets["50-74"])}`,
+            `[25- 49]% | ${makeBar(buckets["25-49"])}`,
+            `[ 0- 24]% | ${makeBar(buckets["0-24"])}`,
+        ];
+
+        elAsciiChart.textContent = lines.join("\n");
+        elAsciiChartCount.textContent = `${all.length} oyun`;
+
+        elStatSteamCount.textContent = `${steam.length}`;
+        elStatEpicCount.textContent = `${epic.length}`;
+
+        const avg = all.length ? totalDiscount / all.length : 0;
+        const maxDiscount = all.length ? Math.max(...all.map(d => d.discountPercent || 0)) : 0;
+        const radarScore = all.length ? ((avg + maxDiscount) / 2).toFixed(1) : "-";
+        elStatRadarScore.textContent = all.length ? radarScore : "-";
+
+        elSummaryAverageDiscount.textContent = all.length ? `${avg.toFixed(1)}%` : "-%";
+    }
+
+    // =========================================================
+    // Top deal + tarihçe
+    // =========================================================
+    function updateTopDealAndHistory() {
+        const steam = state.data.steamDealsRaw;
+        const epic = state.data.epicDealsRaw;
+        const all = filterSortSearchDeals([...steam, ...epic]);
+
+        if (!all.length) {
+            elTopDealHighlight.innerHTML = `<div class="lab-note">Filtrelere uyan oyun yok. Minimum indirim çok yüksek olabilir ya da arama çok spesifik.</div>`;
+            return;
+        }
+
+        const best = all[0];
+
+        elTopDealHighlight.innerHTML = `
+            <div class="top-name">${best.name}</div>
+            <div class="top-meta">${best.platform} • ${formatDiscount(best.discountPercent)}</div>
+            <div class="top-price-row">
+                <div class="top-price-labels">
+                    <span>Mevcut fiyat</span>
+                    <span>Önceki fiyat</span>
+                </div>
+                <div class="top-price-values">
+                    <div class="top-new">${formatPriceTRY(best.newPrice)}</div>
+                    <div class="top-old">${formatPriceTRY(best.oldPrice)}</div>
+                </div>
+                <div class="top-discount">${formatDiscount(best.discountPercent)}</div>
+            </div>
+        `;
+
+        const now = new Date();
+
+        if (state.meta.lastTopDealId !== best.id) {
+            state.meta.lastTopDealId = best.id;
+            state.meta.history.unshift({
+                id: randomId(),
+                dealId: best.id,
+                name: best.name,
+                platform: best.platform,
+                discountPercent: best.discountPercent,
+                price: best.newPrice,
+                time: now
+            });
+            if (state.meta.history.length > 30) state.meta.history.length = 30;
+
+            const msg = `${best.platform}: ${best.name} artık listendeki en yüksek indirim.`;
+            showToast("Yeni top indirim", msg);
+        }
+
+        elHistoryList.innerHTML = "";
+        state.meta.history.forEach(entry => {
+            const item = document.createElement("div");
+            item.className = "history-item";
+
+            const mainRow = document.createElement("div");
+            mainRow.className = "history-main";
+            mainRow.innerHTML = `<span>${entry.platform} / ${entry.name}</span><span>${formatDiscount(entry.discountPercent)}</span>`;
+
+            const metaRow = document.createElement("div");
+            metaRow.className = "history-meta";
+            metaRow.innerHTML = `<span>${formatTime(entry.time)}</span><span>${formatPriceTRY(entry.price)}</span>`;
+
+            item.appendChild(mainRow);
+            item.appendChild(metaRow);
+            elHistoryList.appendChild(item);
+        });
+
+        elSummaryBestDiscount.textContent = `${best.discountPercent}%`;
+        elSummaryTotalGames.textContent = (steam.length + epic.length).toString();
+        elHeroTotalGames.textContent = (steam.length + epic.length).toString();
+    }
+
+    // =========================================================
+    // Lab özet
+    // =========================================================
+    function updateLabSummary() {
+        const steam = state.data.steamDealsRaw;
+        const epic = state.data.epicDealsRaw;
+        const all = [...steam, ...epic];
+
+        elLabTotalGames.textContent = all.length;
+
+        const active = [];
+        if (state.settings.platformSteam) active.push("Steam");
+        if (state.settings.platformEpic) active.push("Epic");
+        elLabActivePlatforms.textContent = active.length ? active.join(" + ") : "Hiçbiri";
+
+        if (!all.length) {
+            elLabAvgDiscount.textContent = "-%";
+        } else {
+            const avg = all.reduce((acc, d) => acc + (d.discountPercent || 0), 0) / all.length;
+            elLabAvgDiscount.textContent = `${avg.toFixed(1)}%`;
+        }
+
+        elLabLastError.textContent = state.meta.lastError || "yok";
+    }
+
+    // =========================================================
+    // Ana tarama
+    // =========================================================
+    async function runScan() {
+        log("info", "Tarama başlıyor...");
+        elStatusDot.classList.add("online");
+        elStatusText.textContent = "Taranıyor";
+        elHeroFooterStatus.textContent = "Durum: tarama yapılıyor...";
+
+        const enabledSteam = state.settings.platformSteam;
+        const enabledEpic = state.settings.platformEpic;
+
+        const tasks = [];
+        if (enabledSteam) tasks.push(fetchSteamDeals());
+        if (enabledEpic) tasks.push(fetchEpicDeals());
+
+        let steamDeals = [];
+        let epicDeals = [];
+
+        try {
+            const results = await Promise.all(tasks);
+            let index = 0;
+            if (enabledSteam) steamDeals = results[index++] || [];
+            if (enabledEpic) epicDeals = results[index++] || [];
+
+            state.data.steamDealsRaw = steamDeals;
+            state.data.epicDealsRaw = epicDeals;
+
+            const filteredSteam = enabledSteam ? filterSortSearchDeals(steamDeals) : [];
+            const filteredEpic = enabledEpic ? filterSortSearchDeals(epicDeals) : [];
+
+            const all = [...filteredSteam, ...filteredEpic];
+            const top = all[0];
+            const topId = top ? top.id : null;
+
+            if (enabledSteam) {
+                renderList(elSteamList, filteredSteam, topId);
+                elSteamCount.textContent = `${filteredSteam.length} oyun`;
+                const maxSteam = filteredSteam.length ? Math.max(...filteredSteam.map(d => d.discountPercent || 0)) : 0;
+                elSteamMetaExtra.textContent = maxSteam ? `en yüksek: ${formatDiscount(maxSteam)}` : "en yüksek: -";
+            } else {
+                elSteamList.innerHTML = "";
+                elSteamCount.textContent = "devre dışı";
+                elSteamMetaExtra.textContent = "—";
+            }
+
+            if (enabledEpic) {
+                renderList(elEpicList, filteredEpic, topId);
+                elEpicCount.textContent = `${filteredEpic.length} oyun`;
+                const maxEpic = filteredEpic.length ? Math.max(...filteredEpic.map(d => d.discountPercent || 0)) : 0;
+                elEpicMetaExtra.textContent = maxEpic ? `en yüksek: ${formatDiscount(maxEpic)}` : "en yüksek: -";
+            } else {
+                elEpicList.innerHTML = "";
+                elEpicCount.textContent = "devre dışı";
+                elEpicMetaExtra.textContent = "—";
+            }
+
+            const now = new Date();
+            state.meta.lastUpdate = now;
+            state.meta.scanCount += 1;
+            elLastUpdate.textContent = formatTime(now);
+            elScanCount.textContent = state.meta.scanCount.toString();
+
+            updateAsciiAndStats();
+            updateTopDealAndHistory();
+            updateLabSummary();
+
+            elStatusText.textContent = "Aktif";
+            elHeroFooterStatus.textContent = "Durum: aktif – kaydırıp listeyi gezebilirsin.";
+            log("info", "Tarama tamamlandı.");
+        } catch (err) {
+            log("error", "Genel tarama hatası:", err);
+            state.meta.lastError = err.message || String(err);
+            elLabLastError.textContent = state.meta.lastError;
+            elStatusDot.classList.remove("online");
+            elStatusText.textContent = "Hata";
+            elHeroFooterStatus.textContent = "Durum: hata oluştu";
+            showToast("Tarama hatası", "Veri çekerken bir hata oluştu; mock katalog yine de gösterilmeye devam ediyor.");
+        }
+    }
+
+    // =========================================================
+    // Ayarları UI'den uygula
+    // =========================================================
+    function applySettingsFromUI() {
+        state.settings.platformSteam = elToggleSteam.classList.contains("active");
+        state.settings.platformEpic = elToggleEpic.classList.contains("active");
+
+        state.settings.minDiscount = Number(elMinDiscountSlider.value);
+        elMinDiscountLabel.textContent = `${state.settings.minDiscount}%`;
+
+        state.settings.refreshIntervalSec = Number(elRefreshIntervalSlider.value);
+        elRefreshIntervalLabel.textContent = `${state.settings.refreshIntervalSec} sn`;
+        elSummaryRefreshEvery.textContent = `${state.settings.refreshIntervalSec} s`;
+        elSummaryRefreshMode.textContent = state.settings.refreshIntervalSec > 0 ? "Otomatik" : "Manuel";
+
+        if (state.timers.refreshIntervalId) {
+            clearInterval(state.timers.refreshIntervalId);
+            state.timers.refreshIntervalId = null;
+        }
+        if (state.settings.refreshIntervalSec > 0) {
+            state.timers.refreshIntervalId = setInterval(runScan, state.settings.refreshIntervalSec * 1000);
+        }
+    }
+
+    // =========================================================
+    // Eventler
+    // =========================================================
+    function setupEvents() {
+        elToggleSteam.addEventListener("click", () => {
+            elToggleSteam.classList.toggle("active");
+            applySettingsFromUI();
+            runScan();
+        });
+
+        elToggleEpic.addEventListener("click", () => {
+            elToggleEpic.classList.toggle("active");
+            applySettingsFromUI();
+            runScan();
+        });
+
+        elMinDiscountSlider.addEventListener("input", () => {
+            applySettingsFromUI();
+            runScan();
+        });
+
+        elRefreshIntervalSlider.addEventListener("input", () => {
+            applySettingsFromUI();
+        });
+
+        elRefreshIntervalSlider.addEventListener("change", () => {
+            applySettingsFromUI();
+        });
+
+        elSearchInput.addEventListener("input", () => {
+            state.settings.searchQuery = elSearchInput.value || "";
+            runScan();
+        });
+
+        elSortPills.forEach(pill => {
+            pill.addEventListener("click", () => {
+                elSortPills.forEach(p => p.classList.remove("active"));
+                pill.classList.add("active");
+                state.settings.sortBy = pill.getAttribute("data-sort") || "discount";
+                runScan();
+            });
+        });
+
+        elBtnRefreshNow.addEventListener("click", () => {
+            runScan();
+        });
+
+        elBtnResetFilters.addEventListener("click", () => {
+            state.settings.searchQuery = "";
+            elSearchInput.value = "";
+            elMinDiscountSlider.value = 0;
+            elRefreshIntervalSlider.value = 300;
+            elSortPills.forEach(p => {
+                p.classList.toggle("active", p.getAttribute("data-sort") === "discount");
+            });
+            if (!elToggleSteam.classList.contains("active")) elToggleSteam.classList.add("active");
+            if (!elToggleEpic.classList.contains("active")) elToggleEpic.classList.add("active");
+            applySettingsFromUI();
+            runScan();
+        });
+    }
+
+    // =========================================================
+    // INIT
+    // =========================================================
+    function init() {
+        log("info", "İndirim Radarı Light başlatılıyor...");
+        applySettingsFromUI();
+        setupEvents();
+        runScan();
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
