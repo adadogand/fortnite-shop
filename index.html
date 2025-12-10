@@ -661,80 +661,196 @@
     <div>Veriler: fortnite-api.com – Görseller &amp; içerik hakları Epic Games’e aittir.</div>
   </footer>
 
-<script>
-const API_URL = "const API_URL = "https://fortnite-api.com/v2/shop/br?language=tr";";
+<<script>
+  // Mağaza API'si (Türkçe)
+  const API_URL = "https://fortnite-api.com/v2/shop/br?language=tr";
 
-async function loadShop() {
-    try {
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error("API hata kodu: " + response.status);
+  // HTML elemanları
+  const featuredGrid   = document.getElementById("featuredGrid");
+  const dailyGrid      = document.getElementById("dailyGrid");
+  const featuredCount  = document.getElementById("featuredCount");
+  const dailyCount     = document.getElementById("dailyCount");
+  const lastUpdate     = document.getElementById("lastUpdate");
+  const countdownEl    = document.getElementById("countdown");
+  const refreshBtn     = document.getElementById("refreshBtn");
+  const featuredError  = document.getElementById("featuredError");
+  const dailyError     = document.getElementById("dailyError");
 
-        const json = await response.json();
-        console.log("API VERİSİ:", json);
+  // Footer yılı
+  const yearEl = document.getElementById("year");
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-        const data = json.data;
-        if (!data) {
-            console.error("Mağaza verisi yok!");
-            return;
-        }
-
-        const featured = data.featured?.entries || [];
-        const daily = data.daily?.entries || [];
-
-        renderItems(featured, document.getElementById("featuredGrid"));
-        renderItems(daily, document.getElementById("dailyGrid"));
-
-        document.getElementById("featuredCount").textContent = featured.length + " ürün";
-        document.getElementById("dailyCount").textContent = daily.length + " ürün";
-
-    } catch (err) {
-        console.error("API HATASI:", err);
-    }
-}
-
-function renderItems(list, container) {
+  function createSkeletonCards(container, count) {
     container.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const card = document.createElement("div");
+      card.className = "item-card skeleton";
+      card.innerHTML = `
+        <div class="item-image-wrap"></div>
+        <div class="item-info">
+          <div class="item-name">&nbsp;</div>
+          <div class="item-desc">&nbsp;</div>
+        </div>
+      `;
+      container.appendChild(card);
+    }
+  }
 
-    list.forEach(entry => {
-        entry.items.forEach(item => {
+  function rarityClass(rarityValue) {
+    if (!rarityValue) return "";
+    const r = rarityValue.toLowerCase();
+    if (r.includes("epic"))       return "epic";
+    if (r.includes("legendary") || r.includes("efsane")) return "legendary";
+    return "";
+  }
 
-            const img =
-                item.images.featured ||
-                item.images.icon ||
-                item.images.smallIcon ||
-                "";
+  function renderSection(entries, container, countLabel) {
+    container.innerHTML = "";
+    let itemsRendered = 0;
 
-            const price = entry.finalPrice;
+    entries.forEach(entry => {
+      const price = entry.finalPrice ?? entry.regularPrice ?? 0;
 
-            const card = document.createElement("div");
-            card.className = "item-card";
+      (entry.items || []).forEach(item => {
+        itemsRendered++;
 
-            card.innerHTML = `
-                <div class="item-tag">${item.type.displayValue}</div>
-                <div class="item-rarity">${item.rarity.displayValue}</div>
+        const card = document.createElement("div");
+        card.className = "item-card";
 
-                <div class="item-image-wrap">
-                    <img src="${img}" class="item-image" loading="lazy" />
-                </div>
+        const rarity = item.rarity?.displayValue || item.rarity?.value || "Bilinmiyor";
+        const rarityCls = rarityClass(rarity);
 
-                <div class="item-info">
-                    <div class="item-name">${item.name}</div>
+        const type = item.type?.displayValue || item.type?.value || "Kostüm";
 
-                    <div class="item-footer">
-                        <div class="price">
-                            <div class="price-icon">V</div>
-                            <span>${price}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
+        const img =
+          item.images?.featured ||
+          item.images?.icon ||
+          item.images?.smallIcon ||
+          "";
 
-            container.appendChild(card);
-        });
+        card.innerHTML = `
+          <div class="item-tag">${type}</div>
+          <div class="item-rarity ${rarityCls}">${rarity}</div>
+          <div class="item-image-wrap">
+            ${
+              img
+                ? `<img src="${img}" alt="${item.name}" class="item-image" loading="lazy" />`
+                : `<div style="width:60%;height:60%;border-radius:999px;border:2px dashed rgba(148,163,184,0.6);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);">
+                     Görsel yok
+                   </div>`
+            }
+          </div>
+          <div class="item-info">
+            <div class="item-name">${item.name}</div>
+            <div class="item-desc">${item.description || "Açıklama bulunmuyor."}</div>
+            <div class="item-footer">
+              <div class="price">
+                <div class="price-icon">V</div>
+                <span>${price.toLocaleString("tr-TR")}</span>
+              </div>
+              <div class="meta-chip">
+                Son görünme: <span>${
+                  (item.introduction && item.introduction.text) || "Bilinmiyor"
+                }</span>
+              </div>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
     });
-}
-loadShop();
+
+    countLabel.textContent = itemsRendered + " ürün";
+  }
+
+  async function loadShop() {
+    try {
+      featuredError.textContent = "";
+      dailyError.textContent = "";
+      lastUpdate.textContent = "Mağaza verisi yükleniyor...";
+
+      createSkeletonCards(featuredGrid, 4);
+      createSkeletonCards(dailyGrid, 4);
+
+      const response = await fetch(API_URL);
+      if (!response.ok) {
+        throw new Error("API hata kodu: " + response.status);
+      }
+
+      const json = await response.json();
+      console.log("API VERİSİ:", json);
+
+      if (!json || !json.data) {
+        throw new Error("Beklenmeyen API cevabı");
+      }
+
+      // DİKKAT: Doğru path burası
+      const featured = json.data.featured?.entries ?? [];
+      const daily    = json.data.daily?.entries ?? [];
+
+      renderSection(featured, featuredGrid, featuredCount);
+      renderSection(daily,   dailyGrid,    dailyCount);
+
+      const updatedDate = json.data.date ? new Date(json.data.date) : new Date();
+      lastUpdate.textContent =
+        "Son güncelleme: " +
+        updatedDate.toLocaleString("tr-TR", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+    } catch (err) {
+      console.error(err);
+      lastUpdate.textContent = "Veri alınırken hata oluştu.";
+      featuredError.textContent = "Öne çıkan ürünler yüklenemedi.";
+      dailyError.textContent = "Günlük ürünler yüklenemedi.";
+    }
+  }
+
+  // 03:00 TR için geri sayım
+  function getNextReset() {
+    const now = new Date();
+    const next = new Date();
+
+    next.setHours(3, 0, 0, 0); // Her gün 03:00 (TR)
+    if (now >= next) next.setDate(next.getDate() + 1);
+    return next;
+  }
+
+  function startCountdown() {
+    function update() {
+      const now = new Date();
+      const target = getNextReset();
+      const diff = target - now;
+
+      if (diff <= 0) {
+        countdownEl.textContent = "Yenileniyor...";
+        loadShop();
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+      const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+      const s = String(totalSeconds % 60).padStart(2, "0");
+
+      countdownEl.textContent = `${h}:${m}:${s}`;
+    }
+
+    update();
+    setInterval(update, 1000);
+  }
+
+  refreshBtn?.addEventListener("click", () => {
+    loadShop();
+  });
+
+  // İlk açılış
+  startCountdown();
+  loadShop();
 </script>
+
 
 </body>
 </html>
