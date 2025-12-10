@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Fortnite Item Shop | Ada Doğan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Gamer tarzı özel font -->
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #050816;
+      --accent: #4adeff;
+      --accent-soft: rgba(74, 222, 255, 0.12);
+      --accent-strong: #22d3ee;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --card-bg: rgba(15, 23, 42, 0.96);
+      --border-subtle: rgba(148, 163, 184, 0.25);
+      --danger: #fb7185;
+      --success: #4ade80;
+      --rare: #3b82f6;
+      --epic: #a855f7;
+      --legendary: #f97316;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Rajdhani", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1d2340 0%, #050816 40%, #000 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .glow-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(56, 189, 248, 0.18), transparent 55%),
+        radial-gradient(circle at 90% 10%, rgba(244, 63, 94, 0.2), transparent 55%),
+        radial-gradient(circle at 50% 100%, rgba(129, 140, 248, 0.15), transparent 60%);
+      filter: blur(2px);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: linear-gradient(to bottom, rgba(3, 7, 18, 0.96), rgba(3, 7, 18, 0.7));
+      border-bottom: 1px solid rgba(148, 163, 184, 0.26);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.7);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-flag {
+      width: 34px;
+      height: 22px;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 0 18px rgba(248, 113, 113, 0.7);
+    }
+
+    .brand-flag-inner {
+      width: 100%;
+      height: 100%;
+      background: #e11d48;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f9fafb;
+      font-size: 16px;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .brand-title span:first-child {
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+    }
+
+    .brand-title span:last-child {
+      font-size: 18px;
+      color: var(--accent);
+      text-shadow: 0 0 14px rgba(45, 212, 191, 0.8);
+    }
+
+    .created-by {
+      font-size: 13px;
+      text-align: right;
+      color: var(--muted);
+    }
+
+    .created-by strong {
+      color: #f97316;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px 16px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .title-block h1 {
+      font-size: 28px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-pill {
+      font-size: 11px;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(129, 140, 248, 0.16));
+      border: 1px solid rgba(96, 165, 250, 0.7);
+      color: var(--accent-strong);
+    }
+
+    .title-block p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+      max-width: 480px;
+    }
+
+    .status-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .countdown {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.5), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(56, 189, 248, 0.6);
+      box-shadow: 0 0 18px rgba(34, 211, 238, 0.55);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .countdown-label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      color: rgba(15, 23, 42, 0.9);
+      background: rgba(248, 250, 252, 0.9);
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .countdown-time {
+      font-weight: 700;
+    }
+
+    .last-update {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+    }
+
+    .refresh-button {
+      padding: 7px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.16s ease-out;
+    }
+
+    .refresh-button:hover {
+      border-color: var(--accent-strong);
+      box-shadow: 0 0 16px rgba(34, 211, 238, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .refresh-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .panel {
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.9));
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      padding: 14px 14px 16px;
+      box-shadow:
+        0 16px 40px rgba(15, 23, 42, 0.9),
+        0 0 0 1px rgba(15, 23, 42, 0.8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.15), transparent 55%);
+      opacity: 0.7;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--accent-strong);
+    }
+
+    .panel-badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--muted);
+    }
+
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .item-card {
+      position: relative;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.2), rgba(15, 23, 42, 0.98));
+      border-radius: 18px;
+      padding: 9px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      overflow: hidden;
+      transform: translateY(0);
+      transition: transform 0.14s ease-out, box-shadow 0.14s ease-out, border-color 0.14s ease-out, background 0.14s ease-out;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .item-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 35px rgba(15, 23, 42, 0.95);
+      border-color: var(--accent-strong);
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.32), rgba(15, 23, 42, 1));
+    }
+
+    .item-tag {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: var(--muted);
+    }
+
+    .item-rarity {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #0b1120;
+      background: var(--rare);
+      border: 1px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .item-rarity.epic {
+      background: var(--epic);
+    }
+
+    .item-rarity.legendary {
+      background: var(--legendary);
+    }
+
+    .item-image-wrap {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: 12px;
+      overflow: hidden;
+      background: radial-gradient(circle at top, rgba(30, 64, 175, 0.8), rgba(15, 23, 42, 1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .item-image {
+      width: 110%;
+      height: 110%;
+      object-fit: contain;
+      transform: scale(1.02);
+      transition: transform 0.2s ease-out, filter 0.2s ease-out;
+      filter: drop-shadow(0 16px 26px rgba(15, 23, 42, 0.9));
+    }
+
+    .item-card:hover .item-image {
+      transform: scale(1.08) translateY(-2px);
+      filter: drop-shadow(0 20px 38px rgba(0, 0, 0, 1));
+    }
+
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .item-name {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .item-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.3;
+      max-height: 36px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 3px;
+      gap: 8px;
+    }
+
+    .price {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.8);
+    }
+
+    .price-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      border: 2px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .meta-chip {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .meta-chip span {
+      color: var(--accent);
+    }
+
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .info-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .info-row strong {
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-strong);
+    }
+
+    .pulse-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pulse-dot span {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--success);
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.8);
+      animation: pulse 1.4s infinite;
+    }
+
+    footer {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px 16px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.4; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at top left, rgba(30, 64, 175, 0.26), rgba(15, 23, 42, 1));
+    }
+
+    .skeleton::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg,
+        transparent,
+        rgba(148, 163, 184, 0.18),
+        transparent);
+      transform: translateX(-100%);
+      animation: shimmer 1.4s infinite;
+    }
+
+    @keyframes shimmer {
+      100% { transform: translateX(100%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="glow-bg"></div>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-flag">
+          <div class="brand-flag-inner">🇹🇷</div>
+        </div>
+        <div class="brand-title">
+          <span>ADA DOĞAN TARAFINDAN OLUŞTURULDU</span>
+          <span>FORTNITE ITEM SHOP</span>
+        </div>
+      </div>
+
+      <div class="created-by">
+        <div><strong>CREATOR</strong> : Ada Doğan</div>
+        <div style="font-size: 11px;">Gerçek zamanlı mağaza &amp; geri sayım</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="top-bar">
+      <div class="title-block">
+        <h1>
+          Mağaza
+          <span class="title-pill">GÜNLÜK YENİLEME 03:00 (TR)</span>
+        </h1>
+        <p>Bu site Fortnite API üzerinden günlük mağazayı çeker. Saat 03:00'te mağaza yenilendiğinde yeni kostümler ve paketler burada da otomatik görünür.</p>
+      </div>
+
+      <div class="status-panel">
+        <div class="countdown">
+          <div class="countdown-label">Sonraki Yenileme</div>
+          <div class="countdown-time" id="countdown">--:--:--</div>
+        </div>
+        <div class="last-update" id="lastUpdate">Son veri yükleniyor...</div>
+        <button class="refresh-button" id="refreshBtn">
+          <span class="refresh-dot"></span>
+          Yenile
+        </button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">ÖNE ÇIKAN &amp; PAKETLER</div>
+            <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">
+              Bundles + yüksek değerli kostümler
+            </div>
+          </div>
+          <div class="panel-badge" id="featuredCount">0 ürün</div>
+        </div>
+
+        <div class="shop-grid" id="featuredGrid"></div>
+        <div class="error" id="featuredError"></div>
+      </section>
+
+      <section class="side-panel">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">GÜNLÜK MAĞAZA</div>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">
+                Günlük rotasyondaki kostümler
+              </div>
+            </div>
+            <div class="panel-badge" id="dailyCount">0 ürün</div>
+          </div>
+
+          <div class="shop-grid" id="dailyGrid"></div>
+          <div class="error" id="dailyError"></div>
+        </div>
+
+        <div class="panel">
+          <div class="info-row">
+            <strong>Nasıl Çalışıyor?</strong>
+            <div>
+              Bu site, <span style="color: var(--accent-strong);">fortnite-api.com</span>
+              üzerinden günlük mağaza verisini çeker ve tarayıcıda işler.
+            </div>
+          </div>
+          <div class="info-row">
+            <strong>Yenilenme Saati</strong>
+            <div>
+              Fortnite shop resmi olarak <b>00:00 UTC</b>’de yenileniyor; Türkiye saatiyle bu yaklaşık <b>03:00</b>’e denk gelir.
+            </div>
+          </div>
+          <div class="info-row">
+            <strong>Durum</strong>
+            <div class="pulse-dot" id="statusLine">
+              <span></span>
+              <span>Gerçek mağaza yükleniyor...</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div>© <span id="year"></span> Ada Doğan. Epic Games veya Fortnite ile resmi bir bağlantısı yoktur.</div>
+    <div>Veriler: fortnite-api.com – Görseller &amp; içerik hakları Epic Games’e aittir.</div>
+  </footer>
+
+  <script>
+    // Fortnite shop endpoint (günlük mağaza + featured)
+    const API_URL = "https://fortnite-api.com/v2/shop/br?language=tr";
+
+    const featuredGrid = document.getElementById("featuredGrid");
+    const dailyGrid = document.getElementById("dailyGrid");
+    const featuredCount = document.getElementById("featuredCount");
+    const dailyCount = document.getElementById("dailyCount");
+    const lastUpdate = document.getElementById("lastUpdate");
+    const countdownEl = document.getElementById("countdown");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const featuredError = document.getElementById("featuredError");
+    const dailyError = document.getElementById("dailyError");
+    const statusLine = document.getElementById("statusLine");
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    function createSkeletonCards(container, count) {
+      container.innerHTML = "";
+      for (let i = 0; i < count; i++) {
+        const card = document.createElement("div");
+        card.className = "item-card skeleton";
+        card.innerHTML = `
+          <div class="item-image-wrap"></div>
+          <div class="item-info">
+            <div class="item-name">&nbsp;</div>
+            <div class="item-desc">&nbsp;</div>
+          </div>
+        `;
+        container.appendChild(card);
+      }
+    }
+
+    function rarityClass(rarityValue) {
+      if (!rarityValue) return "";
+      const r = rarityValue.toLowerCase();
+      if (r.includes("epic") || r.includes("destansı")) return "epic";
+      if (r.includes("legendary") || r.includes("efsane")) return "legendary";
+      return "";
+    }
+
+    function renderSection(entries, container, countLabel) {
+      container.innerHTML = "";
+      let itemsRendered = 0;
+
+      entries.forEach(entry => {
+        const price = entry.finalPrice ?? entry.regularPrice ?? 0;
+
+        (entry.items || []).forEach(item => {
+          itemsRendered++;
+
+          const card = document.createElement("div");
+          card.className = "item-card";
+
+          const rarity = item.rarity?.displayValue || item.rarity?.value || "Bilinmiyor";
+          const rarityCls = rarityClass(rarity);
+
+          let type =
+            item.type?.displayValue ||
+            item.type?.value ||
+            (entry.bundle ? "Bundle" : "Kostüm");
+
+          if (entry.bundle && !String(type).toLowerCase().includes("bundle")) {
+            type = "Bundle";
+          }
+
+          const img =
+            item.images?.featured ||
+            item.images?.icon ||
+            item.images?.smallIcon ||
+            "";
+
+          card.innerHTML = `
+            <div class="item-tag">${type}</div>
+            <div class="item-rarity ${rarityCls}">${rarity}</div>
+            <div class="item-image-wrap">
+              ${
+                img
+                  ? `<img src="${img}" alt="${item.name}" class="item-image" loading="lazy" />`
+                  : `<div style="width:60%;height:60%;border-radius:999px;border:2px dashed rgba(148,163,184,0.6);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);">
+                       Görsel yok
+                     </div>`
+              }
+            </div>
+            <div class="item-info">
+              <div class="item-name">${item.name}</div>
+              <div class="item-desc">${item.description || "Açıklama bulunmuyor."}</div>
+              <div class="item-footer">
+                <div class="price">
+                  <div class="price-icon">V</div>
+                  <span>${price.toLocaleString("tr-TR")}</span>
+                </div>
+                <div class="meta-chip">
+                  <span>${entry.bundle?.name || "SHOP ITEM"}</span>
+                </div>
+              </div>
+            </div>
+          `;
+
+          container.appendChild(card);
+        });
+      });
+
+      countLabel.textContent = itemsRendered + " ürün";
+    }
+
+    async function loadShop() {
+      try {
+        featuredError.textContent = "";
+        dailyError.textContent = "";
+        lastUpdate.textContent = "Mağaza verisi yükleniyor...";
+        statusLine.children[1].textContent = "Gerçek mağaza yükleniyor...";
+
+        createSkeletonCards(featuredGrid, 4);
+        createSkeletonCards(dailyGrid, 4);
+
+        const response = await fetch(API_URL, {
+          headers: {
+            // Fortnite-API bazı istekler için versiyon header'ı istiyor
+            "X-Fortnite-API-Version": "v2"
+          }
+        });
+
+        let json = null;
+        try {
+          json = await response.json();
+        } catch (e) {
+          // JSON parse edilemediyse
+        }
+
+        if (!response.ok) {
+          const apiMsg =
+            (json && (json.error || json.message)) ||
+            `HTTP ${response.status}`;
+          throw new Error(apiMsg);
+        }
+
+        if (!json || !json.data) {
+          throw new Error("Beklenmeyen API cevabı (data boş)");
+        }
+
+        const data = json.data;
+
+        // Farklı cevap yapılarına karşı esnek ol
+        const featuredEntries =
+          data.featured?.entries ||
+          data.shop?.featured?.entries ||
+          data.br?.featured?.entries ||
+          [];
+
+        const dailyEntries =
+          data.daily?.entries ||
+          data.shop?.daily?.entries ||
+          data.br?.daily?.entries ||
+          [];
+
+        renderSection(featuredEntries, featuredGrid, featuredCount);
+        renderSection(dailyEntries, dailyGrid, dailyCount);
+
+        const updatedDate = data.date ? new Date(data.date) : new Date();
+        lastUpdate.textContent =
+          "Son güncelleme: " +
+          updatedDate.toLocaleString("tr-TR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
+
+        statusLine.children[1].textContent = "Gerçek mağaza başarıyla yüklendi.";
+      } catch (err) {
+        console.error(err);
+        lastUpdate.textContent = "Veri alınırken hata oluştu.";
+        const msg = String(err.message || err);
+        featuredError.textContent = "Öne çıkan / paket ürünler yüklenemedi. (" + msg + ")";
+        dailyError.textContent = "Günlük ürünler yüklenemedi. (" + msg + ")";
+        statusLine.children[1].textContent = "API hatası: " + msg;
+      }
+    }
+
+    function getNextReset() {
+      const now = new Date();
+      const next = new Date();
+
+      next.setHours(3, 0, 0, 0); // Her gün 03:00 (TR)
+
+      if (now >= next) {
+        next.setDate(next.getDate() + 1);
+      }
+      return next;
+    }
+
+    function startCountdown() {
+      function update() {
+        const now = new Date();
+        const target = getNextReset();
+        const diff = target - now;
+
+        if (diff <= 0) {
+          countdownEl.textContent = "Yenileniyor...";
+          loadShop();
+          return;
+        }
+
+        const totalSeconds = Math.floor(diff / 1000);
+        const h = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
+        const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, "0");
+        const s = String(totalSeconds % 60).padStart(2, "0");
+
+        countdownEl.textContent = `${h}:${m}:${s}`;
+      }
+
+      update();
+      setInterval(update, 1000);
+    }
+
+    refreshBtn.addEventListener("click", () => {
+      loadShop();
+    });
+
+    // ilk açılış
+    startCountdown();
+    loadShop();
+  </script>
+</body>
+</html>
